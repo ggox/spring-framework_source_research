@@ -68,4 +68,5 @@ public class AnnotationDependencyInjectionResolutionDemo {
 			return "User{" + "name='" + name + '\'' + ", age=" + age + '}';
 		}
 	}
+
 }
