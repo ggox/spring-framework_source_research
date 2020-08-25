@@ -535,6 +535,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		try {
 			populateBean(beanName, mbd, instanceWrapper);
+			// 初始化阶段
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1316,6 +1317,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation 返回 false
 		if (!continueWithPropertyPopulation) {
 			return;
 		}
@@ -1326,10 +1328,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
 			if (mbd.getResolvedAutowireMode() == AUTOWIRE_BY_NAME) {
+				// 根据名称自动注入
 				autowireByName(beanName, mbd, bw, newPvs);
 			}
 			// Add property values based on autowire by type if applicable.
 			if (mbd.getResolvedAutowireMode() == AUTOWIRE_BY_TYPE) {
+				// 根据类型自动注入
 				autowireByType(beanName, mbd, bw, newPvs);
 			}
 			pvs = newPvs;
@@ -1346,6 +1350,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+					// 属性赋值前回调，可以修改 PropertyValues 的内容
 					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 					if (pvsToUse == null) {
 						if (filteredPds == null) {
@@ -1368,6 +1373,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
+			// 真正设置属性的地方
 			applyPropertyValues(beanName, mbd, bw, pvs);
 		}
 	}
@@ -1693,6 +1699,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #applyBeanPostProcessorsAfterInitialization
 	 */
 	protected Object initializeBean(final String beanName, final Object bean, @Nullable RootBeanDefinition mbd) {
+		// aware 接口回调
 		if (System.getSecurityManager() != null) {
 			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 				invokeAwareMethods(beanName, bean);
@@ -1700,14 +1707,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}, getAccessControlContext());
 		}
 		else {
+			// beanName classLoader beanFactory 其他 aware 接口属于 ApplicationContext 生命周期，见 ApplicationContextAwareProcessor
 			invokeAwareMethods(beanName, bean);
 		}
 
+		// 初始化前置回调
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
 
+		// 调用初始化方法
 		try {
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
@@ -1716,6 +1726,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					(mbd != null ? mbd.getResourceDescription() : null),
 					beanName, "Invocation of init method failed", ex);
 		}
+		// 初始化后置回调
 		if (mbd == null || !mbd.isSynthetic()) {
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}

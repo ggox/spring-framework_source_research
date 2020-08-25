@@ -16,11 +16,11 @@
 
 package org.springframework.beans.factory.config;
 
-import java.beans.PropertyDescriptor;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValues;
 import org.springframework.lang.Nullable;
+
+import java.beans.PropertyDescriptor;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
@@ -74,6 +74,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+	 * 返回 true 属性会被正常赋值，返回 false 属性赋值将会被跳过
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
 	 * but before Spring property population (from explicit properties or autowiring) occurs.
 	 * <p>This is the ideal callback for performing custom field injection on the given bean
