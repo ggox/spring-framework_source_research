@@ -31,6 +31,7 @@ public class MyTest {
 		System.out.println(clazz);
 		System.out.println(aClass);
 	}
+
 	@Test
 	public void testFreezeConfiguration() {
 		AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(MyTest.class).getBeanDefinition();

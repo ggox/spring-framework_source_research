@@ -148,6 +148,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 		return renderDefaultMessage(defaultMessage, args, locale);
 	}
 
+	// 模板方法模式的应用
 	@Override
 	public final String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException {
 		String msg = getMessageInternal(code, args, locale);
@@ -221,6 +222,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 			// are defined in the child MessageSource.
 			argsToUse = resolveArguments(args, locale);
 
+			// resolveCode -> 模板方法模式中留给子类实现的方法
 			MessageFormat messageFormat = resolveCode(code, locale);
 			if (messageFormat != null) {
 				synchronized (messageFormat) {
