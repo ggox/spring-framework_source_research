@@ -49,6 +49,7 @@ import java.beans.PropertyDescriptor;
 public interface BeanWrapper extends ConfigurablePropertyAccessor {
 
 	/**
+	 * 嵌套值的深度限制
 	 * Specify a limit for array and collection auto-growing.
 	 * <p>Default is unlimited on a plain BeanWrapper.
 	 * @since 4.1
@@ -62,11 +63,13 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
 	int getAutoGrowCollectionLimit();
 
 	/**
+	 * 放回被这个对象包装的实例
 	 * Return the bean instance wrapped by this object.
 	 */
 	Object getWrappedInstance();
 
 	/**
+	 * 被包装实例的类型
 	 * Return the type of the wrapped bean instance.
 	 */
 	Class<?> getWrappedClass();

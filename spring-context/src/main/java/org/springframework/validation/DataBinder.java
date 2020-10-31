@@ -249,6 +249,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	public void initBeanPropertyAccess() {
 		Assert.state(this.bindingResult == null,
 				"DataBinder is already initialized - call initBeanPropertyAccess before other configuration methods");
+		// 创建 BeanPropertyBindingResult
 		this.bindingResult = createBeanPropertyBindingResult();
 	}
 
@@ -317,6 +318,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * Return the underlying PropertyAccessor of this binder's BindingResult.
 	 */
 	protected ConfigurablePropertyAccessor getPropertyAccessor() {
+		// getPropertyAccessor 返回的是 BeanWrapper
 		return getInternalBindingResult().getPropertyAccessor();
 	}
 
@@ -739,8 +741,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * @see #applyPropertyValues
 	 */
 	protected void doBind(MutablePropertyValues mpvs) {
+		// 校验字段是否允许
 		checkAllowedFields(mpvs);
+		// 校验字段是否必须
 		checkRequiredFields(mpvs);
+		// 设置值
 		applyPropertyValues(mpvs);
 	}
 
@@ -845,6 +850,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	protected void applyPropertyValues(MutablePropertyValues mpvs) {
 		try {
 			// Bind request parameters onto target object.
+			// 实际是通过 BeanWrapper 实现的
 			getPropertyAccessor().setPropertyValues(mpvs, isIgnoreUnknownFields(), isIgnoreInvalidFields());
 		}
 		catch (PropertyBatchUpdateException ex) {
