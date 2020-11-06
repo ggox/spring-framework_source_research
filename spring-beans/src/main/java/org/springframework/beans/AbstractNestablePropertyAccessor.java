@@ -110,6 +110,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 		if (registerDefaultEditors) {
 			registerDefaultEditors();
 		}
+		// 构造 TypeConverterDelegate 的地方
 		this.typeConverterDelegate = new TypeConverterDelegate(this);
 	}
 
