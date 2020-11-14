@@ -138,6 +138,7 @@ class ConfigurationClassBeanDefinitionReader {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
+			// 处理 @Bean 将 BeanMethod 转化为 BeanDefinition
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
@@ -212,6 +213,7 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setResource(configClass.getResource());
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
+		// 最后是通过工厂方法的模式实现的 一个是静态工厂方法 一个是实例工厂方法
 		if (metadata.isStatic()) {
 			// static @Bean method
 			beanDef.setBeanClassName(configClass.getMetadata().getClassName());

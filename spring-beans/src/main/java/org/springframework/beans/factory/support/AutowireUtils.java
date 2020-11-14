@@ -51,12 +51,17 @@ import org.springframework.util.ClassUtils;
  */
 abstract class AutowireUtils {
 
+	/**
+	 * 方法优先级
+	 */
 	private static final Comparator<Executable> EXECUTABLE_COMPARATOR = (e1, e2) -> {
 		boolean p1 = Modifier.isPublic(e1.getModifiers());
 		boolean p2 = Modifier.isPublic(e2.getModifiers());
+		// 公共方法优先
 		if (p1 != p2) {
 			return (p1 ? -1 : 1);
 		}
+		// 方法参数多的优先
 		int c1pl = e1.getParameterCount();
 		int c2pl = e2.getParameterCount();
 		return Integer.compare(c2pl, c1pl);
