@@ -17,6 +17,7 @@
 package org.springframework.aop;
 
 /**
+ * 主要用的给目标类增加新方法的情况
  * Superinterface for advisors that perform one or more AOP <b>introductions</b>.
  *
  * <p>This interface cannot be implemented directly; subinterfaces must

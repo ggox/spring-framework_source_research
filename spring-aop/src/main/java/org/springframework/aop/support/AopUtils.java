@@ -16,15 +16,6 @@
 
 package org.springframework.aop.support;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.AopInvocationException;
 import org.springframework.aop.IntroductionAdvisor;
@@ -34,12 +25,22 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.TargetClassAware;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Utility methods for AOP support code.
@@ -219,13 +220,22 @@ public abstract class AopUtils {
 	 * @param hasIntroductions whether or not the advisor chain
 	 * for this bean includes any introductions
 	 * @return whether the pointcut can apply on any method
+	 *
+	 * 进行切点表达式的匹配最重要的就是 ClassFilter 和 MethodMatcher这两个方法的实现。
+	 * MethodMatcher中有两个matches方法。一个参数是只有Method对象和targetclass，另一个参数有
+	 * Method对象和targetClass对象还有一个Method的方法参数 他们两个的区别是：
+	 * 两个参数的matches是用于静态的方法匹配 三个参数的matches是在运行期动态的进行方法匹配的
+	 * 先进行ClassFilter的matches方法校验
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		// classFilter 不匹配直接返回 false,
+		// 如果是 AspectJExpressionPointcut 返回本身
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
 
+		// 如果是 AspectJExpressionPointcut 返回本身
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -244,6 +254,12 @@ public abstract class AopUtils {
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
 		for (Class<?> clazz : classes) {
+            /*
+             * 只要有一个方法能匹配到就返回true
+             * 这里就会有一个问题：因为在一个目标中可能会有多个方法存在，有的方法是满足这个切点的匹配规则的
+             * 但是也可能有一些方法是不匹配切点规则的，这里检测的是只有一个Method满足切点规则就返回true了
+             * 所以在运行时进行方法拦截的时候还会有一次运行时的方法切点规则匹配
+             */
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?
@@ -283,8 +299,10 @@ public abstract class AopUtils {
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 最常用的 @Pointcut
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
+			/** Pointcut 是 @Pointcut 的抽象,最常用的实现是 {@link AspectJExpressionPointcut} **/
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {

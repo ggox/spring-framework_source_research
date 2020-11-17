@@ -16,21 +16,21 @@
 
 package org.springframework.aop.interceptor;
 
-import java.io.Serializable;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.core.PriorityOrdered;
+
+import java.io.Serializable;
 
 /**
  * Interceptor that exposes the current {@link org.aopalliance.intercept.MethodInvocation}
  * as a thread-local object. We occasionally need to do this; for example, when a pointcut
  * (e.g. an AspectJ expression pointcut) needs to know the full invocation context.
  *
+ * 除非必要，不要轻易使用，他会依赖 Spring Aop Api
  * <p>Don't use this interceptor unless this is really necessary. Target objects should
  * not normally know about Spring AOP, as this creates a dependency on Spring API.
  * Target objects should be plain POJOs as far as possible.
