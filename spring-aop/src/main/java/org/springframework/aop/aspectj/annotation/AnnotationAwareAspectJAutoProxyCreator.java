@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * 在 AspectJAwareAdvisorAutoProxyCreator 的基础上提供了 AspectJ 注解的支持
  * {@link AspectJAwareAdvisorAutoProxyCreator} subclass that processes all AspectJ
  * annotation aspects in the current application context, as well as Spring Advisors.
  *

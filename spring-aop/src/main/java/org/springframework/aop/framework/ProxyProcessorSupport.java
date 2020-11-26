@@ -16,8 +16,6 @@
 
 package org.springframework.aop.framework;
 
-import java.io.Closeable;
-
 import org.springframework.beans.factory.Aware;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -27,9 +25,12 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.io.Closeable;
+
 /**
  * Base class with common functionality for proxy processors, in particular
  * ClassLoader management and the {@link #evaluateProxyInterfaces} algorithm.
+ * 核心功能： ClassLoader 管理和 evaluateProxyInterfaces 算法
  *
  * @author Juergen Hoeller
  * @since 4.1
@@ -102,7 +103,9 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	 * @param proxyFactory the ProxyFactory for the bean
 	 */
 	protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
+		// 获取全部接口
 		Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
+		// 是否具有合理的接口标志
 		boolean hasReasonableProxyInterface = false;
 		for (Class<?> ifc : targetInterfaces) {
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
@@ -117,6 +120,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 				proxyFactory.addInterface(ifc);
 			}
 		}
+		// 如果没有合理的接口，则设置 proxyTargetClass 为 true,基于类代理
 		else {
 			proxyFactory.setProxyTargetClass(true);
 		}

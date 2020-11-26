@@ -20,6 +20,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.lang.Nullable;
 
 /**
+ * 基本功能都由 AbstractAdvisorAutoProxyCreator 实现，提供了根据 beanName 前缀过滤 AdvisorBean 的能力，usePrefix 是开关
  * {@code BeanPostProcessor} implementation that creates AOP proxies based on all
  * candidate {@code Advisor}s in the current {@code BeanFactory}. This class is
  * completely generic; it contains no special code to handle any particular aspects,
