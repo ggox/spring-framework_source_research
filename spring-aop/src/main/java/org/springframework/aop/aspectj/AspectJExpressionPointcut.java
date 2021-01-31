@@ -268,9 +268,11 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
 	@Override
 	public boolean matches(Class<?> targetClass) {
+		// 获取aspectJ的PointcutExpression
 		PointcutExpression pointcutExpression = obtainPointcutExpression();
 		try {
 			try {
+				// spring委托给aspectj框架处理
 				return pointcutExpression.couldMatchJoinPointsInType(targetClass);
 			}
 			catch (ReflectionWorldException ex) {

@@ -385,16 +385,18 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 
 		int numUnboundArgs = this.parameterTypes.length;
 		Class<?>[] parameterTypes = this.aspectJAdviceMethod.getParameterTypes();
+		// 尝试绑定第一个参数，一般是JoinPoint
 		if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0]) ||
 				maybeBindJoinPointStaticPart(parameterTypes[0])) {
 			numUnboundArgs--;
 		}
 
-		if (numUnboundArgs > 0) {
+		if (numUnboundArgs > 0) { // 还有其他参数
 			// need to bind arguments by name as returned from the pointcut match
 			bindArgumentsByName(numUnboundArgs);
 		}
 
+		// 处理过了设置为true 防止重复执行
 		this.argumentsIntrospected = true;
 	}
 
@@ -437,6 +439,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 
 	private void bindArgumentsByName(int numArgumentsExpectingToBind) {
 		if (this.argumentNames == null) {
+			// 通过ParameterNameDiscoverer解析方法的参数名称列表
 			this.argumentNames = createParameterNameDiscoverer().getParameterNames(this.aspectJAdviceMethod);
 		}
 		if (this.argumentNames != null) {
@@ -474,22 +477,22 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		this.argumentBindings = new HashMap<>();
 
 		int numExpectedArgumentNames = this.aspectJAdviceMethod.getParameterCount();
-		if (this.argumentNames.length != numExpectedArgumentNames) {
+		if (this.argumentNames.length != numExpectedArgumentNames) { // 参数数量没对上
 			throw new IllegalStateException("Expecting to find " + numExpectedArgumentNames +
 					" arguments to bind by name in advice, but actually found " +
 					this.argumentNames.length + " arguments.");
 		}
 
 		// So we match in number...
-		int argumentIndexOffset = this.parameterTypes.length - numArgumentsLeftToBind;
+		int argumentIndexOffset = this.parameterTypes.length - numArgumentsLeftToBind; // 已经绑定成功的数量，需要进行偏移量调整
 		for (int i = argumentIndexOffset; i < this.argumentNames.length; i++) {
-			this.argumentBindings.put(this.argumentNames[i], i);
+			this.argumentBindings.put(this.argumentNames[i], i); // 放到一个map中，key -> 参数名称，value -> 参数位置偏移
 		}
 
 		// Check that returning and throwing were in the argument names list if
 		// specified, and find the discovered argument types.
 		if (this.returningName != null) {
-			if (!this.argumentBindings.containsKey(this.returningName)) {
+			if (!this.argumentBindings.containsKey(this.returningName)) { // 返回值参数没有匹配，抛异常
 				throw new IllegalStateException("Returning argument name '" + this.returningName +
 						"' was not bound in advice arguments");
 			}
@@ -500,12 +503,13 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			}
 		}
 		if (this.throwingName != null) {
-			if (!this.argumentBindings.containsKey(this.throwingName)) {
+			if (!this.argumentBindings.containsKey(this.throwingName)) { // 同上返回值参数
 				throw new IllegalStateException("Throwing argument name '" + this.throwingName +
 						"' was not bound in advice arguments");
 			}
 			else {
 				Integer index = this.argumentBindings.get(this.throwingName);
+				// 一般异常是不会有泛型的情况的
 				this.discoveredThrowingType = this.aspectJAdviceMethod.getParameterTypes()[index];
 			}
 		}
@@ -521,6 +525,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 */
 	private void configurePointcutParameters(String[] argumentNames, int argumentIndexOffset) {
 		int numParametersToRemove = argumentIndexOffset;
+		// 参数顺序有讲究
 		if (this.returningName != null) {
 			numParametersToRemove++;
 		}
@@ -545,6 +550,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			index++;
 		}
 
+		// 将参数都设置到pointcut中
 		this.pointcut.setParameterNames(pointcutParameterNames);
 		this.pointcut.setParameterTypes(pointcutParameterTypes);
 	}
@@ -567,6 +573,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		Object[] adviceInvocationArgs = new Object[this.parameterTypes.length];
 		int numBound = 0;
 
+		// 先赋值JoinPoint参数
 		if (this.joinPointArgumentIndex != -1) {
 			adviceInvocationArgs[this.joinPointArgumentIndex] = jp;
 			numBound++;
@@ -576,6 +583,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 			numBound++;
 		}
 
+		// 处理剩下的参数
 		if (!CollectionUtils.isEmpty(this.argumentBindings)) {
 			// binding from pointcut match
 			if (jpMatch != null) {
@@ -587,14 +595,14 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 					numBound++;
 				}
 			}
-			// binding from returning clause
+			// binding from returning clause 返回值赋值
 			if (this.returningName != null) {
 				Integer index = this.argumentBindings.get(this.returningName);
 				adviceInvocationArgs[index] = returnValue;
 				numBound++;
 			}
 			// binding from thrown exception
-			if (this.throwingName != null) {
+			if (this.throwingName != null) { // 异常赋值
 				Integer index = this.argumentBindings.get(this.throwingName);
 				adviceInvocationArgs[index] = ex;
 				numBound++;
@@ -633,11 +641,13 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		return invokeAdviceMethodWithGivenArgs(argBinding(jp, jpMatch, returnValue, t));
 	}
 
+	// aspectJ 通用方法处理
 	protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable {
 		Object[] actualArgs = args;
 		if (this.aspectJAdviceMethod.getParameterCount() == 0) {
 			actualArgs = null;
 		}
+		// 可见 spring aspectJ aop 是使用反射调用增强逻辑的
 		try {
 			ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
 			// TODO AopUtils.invokeJoinpointUsingReflection

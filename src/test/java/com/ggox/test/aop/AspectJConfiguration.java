@@ -1,6 +1,7 @@
 package com.ggox.test.aop;
 
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 
 /**
  * AspectJ 配置类
@@ -11,5 +12,7 @@ import org.aspectj.lang.annotation.Aspect;
  */
 @Aspect
 public class AspectJConfiguration {
+
+
 
 }
