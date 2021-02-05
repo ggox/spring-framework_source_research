@@ -63,7 +63,7 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
 	int getAutoGrowCollectionLimit();
 
 	/**
-	 * 放回被这个对象包装的实例
+	 * 返回被这个对象包装的实例
 	 * Return the bean instance wrapped by this object.
 	 */
 	Object getWrappedInstance();
