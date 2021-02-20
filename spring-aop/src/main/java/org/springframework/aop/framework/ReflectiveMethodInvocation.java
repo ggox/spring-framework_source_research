@@ -112,8 +112,11 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		this.proxy = proxy;
 		this.target = target;
 		this.targetClass = targetClass;
+		// 桥接方法处理
 		this.method = BridgeMethodResolver.findBridgedMethod(method);
+		// 可变参数处理
 		this.arguments = AopProxyUtils.adaptArgumentsIfNecessary(method, arguments);
+		// 连接器链
 		this.interceptorsAndDynamicMethodMatchers = interceptorsAndDynamicMethodMatchers;
 	}
 
@@ -159,7 +162,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	@Nullable
 	public Object proceed() throws Throwable {
 		//	We start with an index of -1 and increment early.
-		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) { // 递归终止条件
 			return invokeJoinpoint();
 		}
 
@@ -171,19 +174,19 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			InterceptorAndDynamicMethodMatcher dm =
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			Class<?> targetClass = (this.targetClass != null ? this.targetClass : this.method.getDeclaringClass());
-			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) {
+			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) { // 判断方法是否符合（动态判断，不常用）
 				return dm.interceptor.invoke(this);
 			}
 			else {
 				// Dynamic matching failed.
 				// Skip this interceptor and invoke the next in the chain.
-				return proceed();
+				return proceed(); // 递归调用
 			}
 		}
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
-			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
+			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this); // 直接调用，合法性校验在对象创建前已经通过静态校验完成了（常用）
 		}
 	}
 
@@ -195,6 +198,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	 */
 	@Nullable
 	protected Object invokeJoinpoint() throws Throwable {
+		// 反射调用target对象的方法
 		return AopUtils.invokeJoinpointUsingReflection(this.target, this.method, this.arguments);
 	}
 

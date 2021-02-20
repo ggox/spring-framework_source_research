@@ -655,6 +655,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			this.advised = advised;
 		}
 
+		// 大致逻辑同JdkDynamicAopProxy.invoke
 		@Override
 		@Nullable
 		public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
@@ -685,6 +686,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				}
 				else {
 					// We need to create a method invocation...
+					// 核心API -> CglibMethodInvocation
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
 				retVal = processReturnType(proxy, target, method, retVal);
@@ -744,7 +746,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		 * invoke the target when invoking public methods.
 		 */
 		@Override
-		protected Object invokeJoinpoint() throws Throwable {
+		protected Object invokeJoinpoint() throws Throwable { // 主要区别是最终不使用反射调用，而是使用methodProxy
 			if (this.methodProxy != null) {
 				return this.methodProxy.invoke(this.target, this.arguments);
 			}

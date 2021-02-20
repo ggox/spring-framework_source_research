@@ -55,6 +55,7 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, BeforeA
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		// 调用拦截器的时候，委托给advice#before
 		this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis());
+		// 调用proceed，配合MethodInvocation.proceed实现递归调用
 		return mi.proceed();
 	}
 

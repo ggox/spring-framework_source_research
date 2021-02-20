@@ -256,6 +256,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	@Override
 	public void addAdvisor(int pos, Advisor advisor) throws AopConfigException {
 		if (advisor instanceof IntroductionAdvisor) {
+			// 如果是IntroductionAdvisor需要先验证，调用IntroductionAdvisor.validateInterfaces，同时将接口添加到interfaces
 			validateIntroductionAdvisor((IntroductionAdvisor) advisor);
 		}
 		addAdvisorInternal(pos, advisor);
@@ -363,8 +364,11 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 			throw new IllegalArgumentException(
 					"Illegal position " + pos + " in advisor list with size " + this.advisors.size());
 		}
+		// 添加到list
 		this.advisors.add(pos, advisor);
+		// 同时更新advisor数组
 		updateAdvisorArray();
+		// 清理缓存
 		adviceChanged();
 	}
 
@@ -395,7 +399,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * Cannot add introductions this way unless the advice implements IntroductionInfo.
 	 */
 	@Override
-	public void addAdvice(int pos, Advice advice) throws AopConfigException {
+	public void addAdvice(int pos, Advice advice) throws AopConfigException { // 添加Advice时会包装成Advisor
 		Assert.notNull(advice, "Advice must not be null");
 		if (advice instanceof IntroductionInfo) {
 			// We don't need an IntroductionAdvisor for this kind of introduction:

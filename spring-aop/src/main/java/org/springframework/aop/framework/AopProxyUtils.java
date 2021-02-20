@@ -115,7 +115,7 @@ public abstract class AopProxyUtils {
 	 * @see Advised
 	 * @see DecoratingProxy
 	 */
-	static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised, boolean decoratingProxy) {
+	static Class<?>[] completeProxiedInterfaces(AdvisedSupport advised, boolean decoratingProxy) { // 主要作用是补全一些类似SpringProxy的接口
 		Class<?>[] specifiedInterfaces = advised.getProxiedInterfaces();
 		if (specifiedInterfaces.length == 0) {
 			// No user-specified interfaces: check whether target class is an interface.
@@ -130,9 +130,9 @@ public abstract class AopProxyUtils {
 				specifiedInterfaces = advised.getProxiedInterfaces();
 			}
 		}
-		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
-		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
-		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
+		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class); // 是不是SpringProxy，不是为true，表示需要添加SpringProxy接口
+		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class); // 判断是否需要添加Advised接口
+		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class)); // 判断是否需要添加DecoratingProxy接口
 		int nonUserIfcCount = 0;
 		if (addSpringProxy) {
 			nonUserIfcCount++;
@@ -224,7 +224,7 @@ public abstract class AopProxyUtils {
 		if (ObjectUtils.isEmpty(arguments)) {
 			return new Object[0];
 		}
-		if (method.isVarArgs()) {
+		if (method.isVarArgs()) { // 是否可变参数
 			Class<?>[] paramTypes = method.getParameterTypes();
 			if (paramTypes.length == arguments.length) {
 				int varargIndex = paramTypes.length - 1;

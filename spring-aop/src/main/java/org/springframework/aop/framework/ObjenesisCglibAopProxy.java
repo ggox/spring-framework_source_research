@@ -40,6 +40,7 @@ class ObjenesisCglibAopProxy extends CglibAopProxy {
 
 	private static final Log logger = LogFactory.getLog(ObjenesisCglibAopProxy.class);
 
+	// 使用 Objenesis 技术进行了优化
 	private static final SpringObjenesis objenesis = new SpringObjenesis();
 
 
