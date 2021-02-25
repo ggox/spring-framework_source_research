@@ -116,7 +116,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 		this.method = BridgeMethodResolver.findBridgedMethod(method);
 		// 可变参数处理
 		this.arguments = AopProxyUtils.adaptArgumentsIfNecessary(method, arguments);
-		// 连接器链
+		// 拦截器链
 		this.interceptorsAndDynamicMethodMatchers = interceptorsAndDynamicMethodMatchers;
 	}
 

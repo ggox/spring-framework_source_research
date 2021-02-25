@@ -73,11 +73,13 @@ public final class MethodIntrospector {
 				Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
 				T result = metadataLookup.inspect(specificMethod);
 				if (result != null) {
+					// 找到桥接方法，真正返回的是桥接方法
 					Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
 					if (bridgedMethod == specificMethod || metadataLookup.inspect(bridgedMethod) == null) {
 						methodMap.put(specificMethod, result);
 					}
 				}
+				// USER_DECLARED_METHODS -> 非桥接方法、非Synthetic方法、非Object方法
 			}, ReflectionUtils.USER_DECLARED_METHODS);
 		}
 

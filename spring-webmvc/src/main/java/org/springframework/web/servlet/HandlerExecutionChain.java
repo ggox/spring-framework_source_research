@@ -134,6 +134,7 @@ public class HandlerExecutionChain {
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
 				if (!interceptor.preHandle(request, response, this.handler)) {
+					// 如果preHandle返回false，直接回调afterCompletion
 					triggerAfterCompletion(request, response, null);
 					return false;
 				}
