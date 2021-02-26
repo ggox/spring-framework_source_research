@@ -82,6 +82,7 @@ public class AspectMetadata implements Serializable {
 		this.aspectName = aspectName;
 
 		Class<?> currClass = aspectClass;
+		// @AspectJ 注解解析
 		AjType<?> ajType = null;
 		while (currClass != Object.class) {
 			AjType<?> ajTypeToCheck = AjTypeSystem.getAjType(currClass);

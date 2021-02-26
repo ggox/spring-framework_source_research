@@ -52,6 +52,12 @@ public abstract class AspectJProxyUtils {
 			}
 			// 如果存在 AspectJAdvice，则添加 ExposeInvocationInterceptor.ADVISOR
 			if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
+				/**
+				 * 添加在头部,主要用于AspectAdvice在执行调用链时获取JoinPostMatch使用
+				 * @see ExposeInvocationInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
+				 * @see AbstractAspectJAdvice#currentJoinPoint()
+				 * etc.
+				 */
 				advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
 				return true;
 			}

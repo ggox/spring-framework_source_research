@@ -91,7 +91,9 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	public void addAspect(Object aspectInstance) {
 		Class<?> aspectClass = aspectInstance.getClass();
 		String aspectName = aspectClass.getName();
+		// aspect类的元数据信息,AspectMetadata内部依赖aspectj相关的api,但是值得提醒的是：spring aop只对aspectj的注解进行了支持，而并非其所有语义
 		AspectMetadata am = createAspectMetadata(aspectClass, aspectName);
+		// 目前针对实例的addAspect方法仅支持PerClauseKind.SINGLETON
 		if (am.getAjType().getPerClause().getKind() != PerClauseKind.SINGLETON) {
 			throw new IllegalArgumentException(
 					"Aspect class [" + aspectClass.getName() + "] does not define a singleton aspect");
@@ -118,12 +120,17 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	 * @see AspectJProxyUtils#makeAdvisorChainAspectJCapableIfNecessary(List)
 	 */
 	private void addAdvisorsFromAspectInstanceFactory(MetadataAwareAspectInstanceFactory instanceFactory) {
+		// instanceFactory包含AspectMetada和apsectInstance,通过aspectFactory解析AspectMetadata抽取出Advisor
 		List<Advisor> advisors = this.aspectFactory.getAdvisors(instanceFactory);
 		Class<?> targetClass = getTargetClass();
 		Assert.state(targetClass != null, "Unresolvable target class");
+		// 过滤出适用的Advisor
 		advisors = AopUtils.findAdvisorsThatCanApply(advisors, targetClass);
+		// 如果存在aspect advice的话，增加一个ExposeInvocationInterceptor，作用是将MethodInvocation保存在线程中，以便aspect相关api获取到
 		AspectJProxyUtils.makeAdvisorChainAspectJCapableIfNecessary(advisors);
+		// 对advisor进行排序
 		AnnotationAwareOrderComparator.sort(advisors);
+		// 复用父类的能力
 		addAdvisors(advisors);
 	}
 
@@ -146,6 +153,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 	private MetadataAwareAspectInstanceFactory createAspectInstanceFactory(
 			AspectMetadata am, Class<?> aspectClass, String aspectName) {
 
+		// 提供aspect元数据和aspect实例（猜想在反射时使用）
 		MetadataAwareAspectInstanceFactory instanceFactory;
 		if (am.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 			// Create a shared aspect instance.
