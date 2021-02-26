@@ -223,6 +223,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 			if (typeInfo != null) {
 				info = typeInfo.combine(info);
 			}
+			// 可以设置url前缀
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
 				info = RequestMappingInfo.paths(prefix).build().combine(info);

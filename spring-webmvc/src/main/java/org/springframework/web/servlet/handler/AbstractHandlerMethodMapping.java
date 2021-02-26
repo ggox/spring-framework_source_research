@@ -287,6 +287,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+				// 注册方法（放置到map中）
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -596,25 +597,32 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			this.readWriteLock.writeLock().lock();
 			try {
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+				// 重复校验
 				assertUniqueMethodMapping(handlerMethod, mapping);
+				// 放置到map中，请求来时进行匹配
 				this.mappingLookup.put(mapping, handlerMethod);
 
 				List<String> directUrls = getDirectUrls(mapping);
+				// 存储 url -> mapping 的映射
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);
 				}
 
+				// 名称策略处理
 				String name = null;
 				if (getNamingStrategy() != null) {
 					name = getNamingStrategy().getName(handlerMethod, mapping);
+					// 存储 name -> handlerMethod 的映射关系
 					addMappingName(name, handlerMethod);
 				}
 
+				// cors配置处理：存储 handlerMethod -> corsConfig 的映射关系
 				CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
 				if (corsConfig != null) {
 					this.corsLookup.put(handlerMethod, corsConfig);
 				}
 
+				// 保存 mapping -> MappingRegistration 的映射关系
 				this.registry.put(mapping, new MappingRegistration<>(mapping, handlerMethod, directUrls, name));
 			}
 			finally {
@@ -632,9 +640,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 		}
 
+		// 获取直接url
 		private List<String> getDirectUrls(T mapping) {
 			List<String> urls = new ArrayList<>(1);
 			for (String path : getMappingPathPatterns(mapping)) {
+				// 判断不是模式url
 				if (!getPathMatcher().isPattern(path)) {
 					urls.add(path);
 				}
