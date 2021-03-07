@@ -45,10 +45,13 @@ import java.util.List;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #findCandidateAdvisors
+ *
+ * 在 AbstractAutoProxyCreator 的基础上增加Advisor自动查找能力
  */
 @SuppressWarnings("serial")
 public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyCreator {
 
+	// Advisor查找能力的核心api
 	@Nullable
 	private BeanFactoryAdvisorRetrievalHelper advisorRetrievalHelper;
 
