@@ -425,6 +425,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 	}
 
+	// 判断 dependentBeanName 是否依赖 beanName
 	private boolean isDependent(String beanName, String dependentBeanName, @Nullable Set<String> alreadySeen) {
 		if (alreadySeen != null && alreadySeen.contains(beanName)) {
 			return false;
@@ -434,6 +435,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		if (dependentBeans == null) {
 			return false;
 		}
+		// 所有依赖beanName的bean集合中包含dependentBeanName，表明存在循环依赖，返回true
 		if (dependentBeans.contains(dependentBeanName)) {
 			return true;
 		}

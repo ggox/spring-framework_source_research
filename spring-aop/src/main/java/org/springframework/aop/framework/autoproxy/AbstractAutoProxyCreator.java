@@ -232,12 +232,16 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return null;
 	}
 
+	// 在获取到提前暴露的对象引用时进行扩展
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) {
+		// 构建缓存key
 		Object cacheKey = getCacheKey(bean.getClass(), beanName);
+		// 判断在保存的提前暴露对象代理引用集合中是否已经包含当前bean的代理，没有则添加
 		if (!this.earlyProxyReferences.contains(cacheKey)) {
 			this.earlyProxyReferences.add(cacheKey);
 		}
+		// 进行必要的包装，返回增强的代理对象
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 

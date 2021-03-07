@@ -506,6 +506,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Allow post-processors to modify the merged bean definition.
+		// 回调 MergedBeanDefinitionPostProcessor.postProcessMergedBeanDefinition，允许BeanPostProcessor修改合并后的BeanDefinition
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
@@ -528,12 +529,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// 将 ()->getEarlyBeanReference(beanName, mbd, bean)这个ObjectFactory添加到singletonFactories（第三级缓存）中，用于解决循环依赖问题
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
+			// bean属性设置（包含自动注入其他bean的逻辑）
 			populateBean(beanName, mbd, instanceWrapper);
 			// 初始化阶段
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
@@ -549,6 +552,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			// allowEarlyReference为false，调用getSingleton
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
 				if (exposedObject == bean) {
@@ -1320,7 +1324,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation 返回 false
+		// InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation 返回false,直接return，不进行下面属性的注入和赋值
 		if (!continueWithPropertyPopulation) {
 			return;
 		}
